@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="estate_model_action" model="ir.actions.act_window">
+        <field name="name">Estate Property</field>
+        <field name="res_model">estate.property</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_available': True}</field>
+    </record>
+    <record id="estate_property_view_tree" model="ir.ui.view">
+        <field name="name">estate.property.tree</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <tree string="Estate Property Tree" 
+            decoration-success="state in ['offer_received','offer_accepted']" 
+            decoration-bf="state=='offer_accepted'" 
+            decoration-muted="state=='sold'">
+                <field name="name" string="Title" />
+                <field name="state" string="Status" />
+                <field name="postcode" string="Postcode 郵遞區號" />
+                <field name="bedrooms" string="Bedrooms 臥房數" />
+                <field name="living_area" string="Living Area(sqm)" />
+                <field name="expected_price" string="Expected Price"/>
+                <field name="selling_price" string="Selling Price"/>
+                <field name="date_availability" string="Available From" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+    <record id="estate_property_view_form" model="ir.ui.view">
+        <field name="name">estate.property.form</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <form string="Estate Property Form">
+                <header>
+                    <button name="action_set_sold" string="SOLD" type="object"/>
+                    <button name="action_set_lost" string="CANCEL" type="object"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,offer_received,offer_accepted,sold" options="{'clickable':1}"/>
+                </header>
+                <sheet>
+                    <div class="estate_title" id="name">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <field name="property_tag_ids" string="Tags:" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                    </div>
+                    <group>
+                        <group>
+                            <!--<field name="state" string="Status"/> -->
+                            <field name="property_type_id"  options="{'no_create': true, 'no_open': true, 'no_quick_create': true ,'can_write': false}"/>
+                            <field name="postcode"/>
+                            <field name="date_availability" string="Available From"/>
+                        </group>
+                        <group>
+                            <field name="expected_price"/>
+                            <field name="best_price"/>                  
+                            <field name="selling_price"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                             <group>
+                                <group>
+                                    <field name="description" string="Description"/>
+                                    <field name="bedrooms" string="Bedrooms" />
+                                    <field name="living_area" string="Living Area (sqm)"/>
+                                    <field name="facades"/>
+                                    <field name="garage"/>
+                                    <field name="garden"/>
+                                    <field name="garden_area" string="Garden Area (sqm)"  invisible="not garden"/>
+                                    <field name="garden_orientation"  invisible="not garden"/>
+                                    <field name="total_area"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Offers">
+                            <field name="offer_ids"  readonly="state in ['offer_Accepted', 'sold', 'canceled']"/>
+                        </page>
+                        <page string="Other Info">
+                            <group>
+                                <group>
+                                    <field name="user_id" string="Salesman"/>
+                                    <field name="buyer_id" sting="Buyer"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="estate_property_view_search" model="ir.ui.view">
+        <field name="name">estate.property.search</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <search string="Estate Search">
+                <field name="name" string="Title"/>
+                <field name="postcode" string="Postcode"/>
+                <field name="expected_price" string="Expected Price"/>
+                <field name="bedrooms" string="Bedrooms"/>
+                <field name="living_area" string="Living Area (sqm)" filter_domain="[('living_area','>=',self)]"/>
+                <field name="facades" string="Facades"/>
+                <separator/>
+                <filter string="Available" name="available" domain="['|',
+                                                                    ('state', '=', 'new'),
+                                                                    ('state', '=', 'offer_received')
+                                                                ]"/>
+                <group expand="1" string="Group by">
+                    <filter string="Postcode" name="postcode" context="{'group_by':'postcode','residual_visible':True}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>
